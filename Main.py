@@ -2,32 +2,65 @@
 # NOTE: One or two additional variables are fine. An extra copy of the array is not.
 #FOLLOW UP
 #Write the test cases for this method.
+import math
 
-#doesn't work because length changes in the middle of the loop, which doesn't update the loop range, resulting in index error
+length = 0
+#PRE: non-empty string
+#POST: string with all duplicates removed
 def removeDup(str):
     str_list = list(str)
+    global length
     length = len(str_list)
+    str_list = heapify(str_list) #min heap
+    prev = extract_min(str_list)
     for i in range(0,length):
-        for j in range(i+1, length):
-            if str_list[i] == str_list[j]:
-                str_list.pop(j)
-                length -= 1
-    return "".join(str_list)
+        curr = extract_min(str_list)
+        if curr == prev:
+            #pop the prev, which is located at last index of heap + 1
+            str_list.pop(length)
+        prev = curr
+    return str_list
 
-'''
-def removeDup(str):
-    str_list = list(str)
-    l = len(str)
-    pos = 0
-    return "".join(remove(str, l, pos))
+def heapify(str_list):
+    # global length
+    # length = len(str_list)
+    start_index = math.floor(len(str_list)/2)-1
+    for i in range(start_index, -1, -1):
+        str_list = trickleDown(i, str_list)
+    return str_list
 
-def remove(str_list, l, pos):
-    for j in range(pos+1, l - 1):
-         if str_list[pos] == str_list[j]:
-             str_list.pop(j)
-             l -= 1
-             pos += 1
-    if l > 0 and pos < l:
-        return remove(str_list, l, pos)
-'''
-print(removeDup("sabcdsefgs"))
+def trickleDown(i, list):
+    while i < length:
+        left = (i+1)*2 -1
+        right = (i+1)*2
+        if left < length:
+            smallerChildIndex = left
+            if right < length and list[right] < list[left]:
+                smallerChildIndex = right
+            #swap if parent is bigger than child
+            if list[i] > list[smallerChildIndex]:
+                list[i], list[smallerChildIndex] = list[smallerChildIndex], list[i]
+            i = smallerChildIndex
+        else:
+            break
+    return list
+
+
+def extract_min(str_list):
+    global length
+    char = str_list[0]
+    str_list[0], str_list[length-1] = str_list[length-1], str_list[0]
+    length-=1
+    trickleDown(0, str_list)
+    return char
+
+# str = "btiornvfewa"
+# str_l = list(str)
+# print(heapify(str_l))
+
+#test cases:
+print(removeDup("a"))
+print(removeDup("aa"))
+print(removeDup("abba"))
+print(removeDup("fedcbafd"))
+print(removeDup("fdssafdsfsaasdfdsasadfdfsafdsfdfsfdsafdsa"))
